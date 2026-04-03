@@ -1,6 +1,6 @@
 # Reference images
 
-Drop reference images here for the agent to use when generating Nano Banana stills, Veo 3.1 start frames, and other Arcads outputs. The agent checks this folder automatically.
+Drop reference images here for the agent to use when generating Nano Banana stills, Veo 3.1 start frames, and other KIE AI outputs. The agent checks this folder automatically.
 
 ## Folder structure
 
@@ -43,16 +43,16 @@ Descriptors should cover these categories in order:
 10-above-angle.jpg
 ```
 
-The agent uses `01-hero-front.png` as the primary reference and can load all 10 as `referenceImages` for maximum consistency.
+The agent uses `01-hero-front.jpg` as the primary reference and can load all 10 as `image_input` references for maximum consistency.
 
 ### `products/`
 Product photos for showcase videos and product hero images.
 - Different angles, packaging, in-use shots, flat lays
-- The agent uses these as `refImageAsBase64` in the product showcase workflow
+- The agent uploads these via KIE file upload and uses them as `image_input` references
 - Tip: clean backgrounds (white/neutral) produce the best results
 
 ### `aesthetics/`
-Style references organized into subfolders by vibe. The agent loads 3 images from the chosen style folder as `referenceImages` to influence generation style.
+Style references organized into subfolders by vibe. The agent loads 3 images from the chosen style folder as `image_input` references to influence generation style.
 
 #### `aesthetics/ugc-selfie/`
 iPhone selfie-style UGC — raw, unpolished, authentic-looking frame grabs. Drop 3-5 reference images showing the target aesthetic: front-camera selfies, slightly grainy, imperfect lighting, casual environments.

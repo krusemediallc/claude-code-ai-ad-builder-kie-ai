@@ -1,14 +1,14 @@
-# Agent instructions
-
-This repository is set up for AI coding agents (Cursor, Claude Code, Copilot-style tools, etc.).
+# Instructions for non-Claude agents (Cursor, Copilot, Manus, etc.)
 
 ## First-time setup
 
-If `.env` or `MASTER_CONTEXT.md` do not exist, tell the user to run `./scripts/setup.sh`.
+Run `./scripts/setup.sh` or manually:
+1. Copy `.env.example` → `.env`, add your `KIE_API_KEY` (from https://kie.ai/api-key).
+2. Copy `MASTER_CONTEXT.template.md` → `MASTER_CONTEXT.md`.
 
 ## Every session
 
-1. Read **[MASTER_CONTEXT.md](MASTER_CONTEXT.md)** for brand voice, credit costs, default product, and learnings.
-2. Follow the skill at `.cursor/skills/arcads-external-api/` or `.claude/skills/arcads-external-api/` (synced from `skills/arcads-external-api/` via `scripts/sync-skill.sh`).
-3. If `MASTER_CONTEXT.md` has empty fields (credit costs, default product ID), offer to populate them — ask the user and write the values back so future sessions have them.
-4. After material changes, add a dated entry to **MASTER_CONTEXT.md** Changelog.
+1. Read **`MASTER_CONTEXT.md`** for brand voice, credit costs, and learnings.
+2. Use the skill at `skills/kie-ai-api/SKILL.md` (or `.cursor/skills/kie-ai-api/SKILL.md` for Cursor).
+3. Populate empty `MASTER_CONTEXT.md` fields when prompted.
+4. Append a dated note to `MASTER_CONTEXT.md` Changelog after significant changes.

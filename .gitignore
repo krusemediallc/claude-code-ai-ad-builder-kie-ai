@@ -4,5 +4,6 @@
 MASTER_CONTEXT.md
 .claude/skills/
 .cursor/skills/
+test-outputs/
 .DS_Store
 *.log

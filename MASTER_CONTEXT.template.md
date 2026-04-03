@@ -1,41 +1,49 @@
-# Master context (Arcads + agents)
+# Master context (KIE AI + agents)
 
-**Purpose:** One place for humans and AI agents to capture **decisions**, **brand voice**, **API quirks**, and **what we learned** while using this repo with Arcads.
+**Purpose:** One place for humans and AI agents to capture **decisions**, **brand voice**, **API quirks**, and **what we learned** while using this repo with KIE AI.
 
 ## How agents should use this file
 
-- **At the start of substantive work:** Read this file for project-specific context that is not in the skill.
-- **After meaningful changes:** Append a new **dated entry** under [Changelog](#changelog) (Decision / What changed / Why).
-- **If fields are empty:** Offer to populate them (credit costs from the user, default product from `GET /v1/products`).
+- **At the start of substantive work:** Read this file for project-specific context.
+- **After meaningful changes:** Append a new **dated entry** under [Changelog](#changelog).
+- **If fields are empty:** Offer to populate them (credit costs from pricing page, balance from API).
 
 ## Project snapshot
 
-- **Arcads API base:** `https://external-api.arcads.ai` (see `.env.example`).
-- **Skill:** `.claude/skills/arcads-external-api/` and `.cursor/skills/arcads-external-api/` (sync from `skills/arcads-external-api/` via `scripts/sync-skill.sh`).
+- **KIE API base:** `https://api.kie.ai` (see `.env.example`).
+- **KIE upload base:** `https://kieai.redpandaai.co`.
+- **Skill:** `.claude/skills/kie-ai-api/` and `.cursor/skills/kie-ai-api/` (sync from `skills/kie-ai-api/` via `scripts/sync-skill.sh`).
 
 ## My workspace
 
-- **Default product ID:** _(auto-populated after first `GET /v1/products` call)_
-- **Default product name:** _(auto-populated)_
+- **Current credit balance:** _(check via `GET /api/v1/chat/credit`)_
 
 ## Credit costs
 
-_Fill in your plan's credit costs below. The agent references this table before every generation. If left blank, the agent will ask you once and can fill them in._
+_Fill in your plan's credit costs below. The agent references this table before every generation. If left blank, the agent will ask you once and can fill them in. Check https://kie.ai/pricing for current rates._
 
-| Model | Credits per generation | Notes |
-|-------|----------------------|-------|
-| Veo 3.1 | 1 | Same cost at 720p, 1080p, and 4K |
-| Sora 2 | _(fill in)_ | |
-| Sora 2 Pro | _(fill in)_ | Auto-selected when using `refImageAsBase64` |
-| Kling 3.0 (scene) | _(fill in)_ | |
-| Kling 3.0 (b-roll) | _(fill in)_ | |
-| Nano Banana 2 (image, `nano-banana-2`) | 0.03 | ~35s generation time |
-| Nano Banana Pro (image, `nano-banana`) | _(fill in)_ | |
-| Nano Banana (scene) | _(fill in)_ | |
+| Model | Credits per generation | Approx USD | Notes |
+|-------|----------------------|------------|-------|
+| Veo 3.1 (quality, `veo3`) | _(fill in)_ | | |
+| Veo 3.1 (fast, `veo3_fast`) | _(fill in)_ | | |
+| Veo 3.1 (lite, `veo3_lite`) | _(fill in)_ | | |
+| Runway (720p 5s) | _(fill in)_ | | |
+| Runway (720p 10s) | _(fill in)_ | | |
+| Runway (1080p 5s) | _(fill in)_ | | |
+| Sora 2 | _(fill in)_ | | |
+| Sora 2 Pro | _(fill in)_ | | |
+| Kling 3.0 (std) | _(fill in)_ | | |
+| Kling 3.0 (pro) | _(fill in)_ | | |
+| Seedance 2.0 720p no-video (`bytedance/seedance-2`) | 41 cr/s | $0.205/s | 8s default = ~328 credits |
+| Seedance 2.0 720p with-video | 25 cr/s | $0.125/s | 8s = ~200 credits |
+| Seedance 2.0 480p no-video | 19 cr/s | $0.095/s | 8s = ~152 credits |
+| Seedance 2.0 480p with-video | 11.5 cr/s | $0.0575/s | 8s = ~92 credits |
+| Nano Banana 2 (`nano-banana-2`) | _(fill in)_ | | |
+| Nano Banana Pro (`google/nano-banana`) | _(fill in)_ | | |
 
 ## Brand (optional)
 
-_Edit or replace with your real brand blocks (see `skills/arcads-external-api/prompting/brand-voice-starter.md`)._
+_Edit or replace with your real brand blocks (see `skills/kie-ai-api/prompting/brand-voice-starter.md`)._
 
 - **Tone:**
 - **Audience:**
@@ -48,95 +56,107 @@ Drop reference images into the `references/` folder at the repo root:
 - `references/products/` — product photos for showcase workflows
 - `references/aesthetics/` — mood boards, lighting references, style inspiration
 
-The agent checks this folder when composing prompts and automatically uses images as `refImageAsBase64` or `referenceImages` depending on the workflow.
+The agent checks this folder when composing prompts and automatically uploads images via KIE file upload for use as references.
 
 ## API learnings (universal)
 
-These are confirmed behaviors of the Arcads external API. They apply to all workspaces.
+These are confirmed behaviors of the KIE AI API. They apply to all accounts.
 
 ### Auth
 
-- HTTP Basic with `ARCADS_BASIC_AUTH` (pre-encoded header from dashboard) or `ARCADS_API_KEY` as Basic username.
-- Values in `.env` must be **single-quoted** due to special characters (`{`, `[`, `*`).
+- Bearer token: `Authorization: Bearer $KIE_API_KEY`.
+- Get key from https://kie.ai/api-key.
 
-### Nano Banana image endpoint
+### Endpoint architecture
 
-- `POST /V2/images/generate` (note **uppercase V2**). `model` is **required**.
-- Valid models: `nano-banana`, `nano-banana-2`, `gpt-image`, `soul`, `grok_image`, `seedream`, `seedream_5_lite`.
-- Default to `nano-banana-2` (Nano Banana 2). `nano-banana` = Nano Banana Pro (no `nano-banana-pro` in the API enum).
-- Output: `.png` at the `url` field on the asset response (no `thumbnailUrl`).
-- Generation time: ~35 seconds typical.
-- Auth: must use `Authorization: Basic ...` header.
+- **Dedicated routes:** Veo 3.1 (`/api/v1/veo/...`), Runway (`/api/v1/runway/...`).
+- **Generic jobs route:** `POST /api/v1/jobs/createTask` for Sora 2, Kling, Nano Banana, and most market models.
+- Polling differs by endpoint type — see reference.md.
 
-### Scene for image-like output
+### Nano Banana image generation
 
-- `POST /v1/scene` with only `productId`, `prompt`, `aspectRatio` produces a short video + `.jpg` thumbnail.
-- Best path when you need a still frame to feed into another model (before the Nano Banana image endpoint was confirmed).
-- No `duration` required (unlike b-roll which needs 5 or 10).
-
-### B-roll
-
-- Requires `duration` (5 or 10 seconds).
-- Slower to generate than scene (~5 min vs ~75s).
+- NB2: `model: "nano-banana-2"`, supports `input.image_input` (up to 14 ref images), `input.aspect_ratio`.
+- NB Pro: `model: "google/nano-banana"`, uses `input.image_size` (not `aspect_ratio`), no reference image support.
+- NB Pro uses `jpeg` format string; NB2 uses `jpg`.
 
 ### Veo 3.1
 
-- `startFrame` vs `referenceImages` are **mutually exclusive**. `startFrame` = video animates from this exact image. `referenceImages` = style/mood inspiration only.
-- Default: always use `startFrame` when user provides a single person photo.
-- No `duration` field — auto-determines length (~8s typical).
-- **Default resolution: `720p`** — 4K and 1080p show no visible quality difference for UGC content but produce 3-8x larger files.
-- **ALWAYS include** `"No subtitles, no captions, no text overlays."` at the end of every prompt — Veo 3.1 sometimes burns subtitles into the video.
-- **Human motion cues are mandatory** — without them subjects look like frozen mannequins. Include 3-4 cues per prompt: breaking eye contact, head tilts, shifting weight, adjusting product grip.
+- `imageUrls` array: 1 image = start frame behavior, 2 images = first-to-last transition.
+- No `duration` field — auto-determines (~8s typical).
+- Models: `veo3` (quality), `veo3_fast` (default), `veo3_lite`.
+- **ALWAYS include** `"No subtitles, no captions, no text overlays."` in prompts.
+- **Human motion cues mandatory** — without them, subjects look frozen.
 
 ### Sora 2
 
-- `refImageAsBase64` is a **style/mood reference only** — it does NOT preserve face, pose, or scene from the input image. Do NOT use Sora 2 to animate a specific starting frame.
-- Best for: text-only video generation, or when you just have a product photo and want to generate a UGC video directly (no starting frame step).
-- Supports duration up to 20s (enum: 4, 8, 12, 16, 20).
+- `input.image_urls` for image-to-video — style/mood reference behavior, not exact start frame.
+- Best for: text-only video or when you don't need exact frame-one fidelity.
+- `n_frames`: `10` (~5s) or `15` (~8s).
+- `upload_method`: always `"s3"`.
 
-### File upload (for Veo start frames / reference images)
+### Kling 3.0
 
-- `POST /v1/file-upload/get-presigned-url` — field is `fileType`, **not** `contentType`.
-- Response: `presignedUrl` (for `PUT` upload) + `filePath` (pass into `startFrame` / `referenceImages`).
+- Duration: 3-15 seconds (flexible).
+- Multi-shot mode: storyboard multiple shots with individual prompts.
+- Elements: attach up to 3 character/object references.
+- Sound effects: `sound: true`.
+- Modes: `std` (720p) or `pro` (1080p).
 
-### Kling / Nano Banana video routing
+### Runway
 
-- No dedicated POST endpoints for Kling. Asset type enums (`kling_30`, `nano-banana`) exist on responses.
-- Model selection may be server-side for b-roll/scene.
+- Silent video only — no speech generation.
+- Duration: 5 or 10 seconds (10s limited to 720p).
+- Quality: 720p or 1080p (1080p limited to 5s).
+
+### Seedance 2.0
+
+- `model: "bytedance/seedance-2"` via generic jobs endpoint.
+- **Multimodal:** supports text + images (up to 7) + videos (up to 3) + audio (up to 3) in one call.
+- **First/last frame:** `first_frame_url` and `last_frame_url` for precise start/end transitions.
+- **Native audio:** `generate_audio: true` (default) — built-in speech, lip-sync, sound effects. Set `false` for silent + cheaper.
+- Duration: 4, 8, 12 seconds. Resolution: 480p, 720p.
+- `web_search` field is required (set `true` or `false`).
+- Credits are **per second** and vary by resolution and whether video input is used.
+- Generation time: ~3-5 minutes typical (tested: ~220s for text-only 8s 720p).
+- **Person images require Asset Library:** (1) `POST /api/v1/playground/createAsset` → get asset ID, (2) verify with `GET /api/v1/playground/getAsset?assetId=`, (3) use `asset://<asset_id>` format in `first_frame_url` or `reference_image_urls`. Regular URLs and bare asset IDs fail. The `asset://` prefix is required.
+- Text-to-video works without Asset Library step.
+
+### File upload
+
+- Upload base: `https://kieai.redpandaai.co`.
+- Three methods: URL upload, base64 upload, stream upload.
+- Files auto-delete after **3 days**. Re-upload if needed.
+- Use returned `downloadUrl` as image reference in generation calls.
 
 ### Polling
 
-- `GET /v1/assets/{id}` — status goes `pending` -> `generated` | `failed`.
-- Typical times: scene ~75s, b-roll ~5 min, Veo 3.1 ~4 min, Nano Banana image ~35s.
+- Dedicated routes (Veo, Runway): model-specific polling endpoints.
+- Generic jobs: `GET /api/v1/jobs/recordInfo?taskId=`.
+- States: `waiting` → `queuing` → `generating` → `success` | `fail`.
+- `resultJson` is a JSON string — parse it for output URLs.
 
-### Product API
+### Rate limits
 
-- `ProductCreationDto` has text-only fields (`name`, `description`, `targetAudience`, `mainFeatures`, `painPoint`, `perceived`) — no image upload.
-- Product images are dashboard-only (`pictureId` field).
-- The Arcads script/actor pipeline (situations, voices) is a separate system from the Veo/Sora/Kling direct-model routes.
+- 20 requests per 10 seconds per account.
+- 100+ concurrent running tasks.
+- Exceeded → HTTP 429.
 
-### Folder / project organization
+### Data retention
 
-- Every agent session that generates assets should create (or reuse) a folder named **"Arcads API - YYYY-MM-DD"** with a matching project inside it, then assign all generated assets to that project.
-- API calls: `POST /v1/folders`, `POST /v1/projects`, `POST /v1/assets/add-to-project`. Check `GET /v1/products/{productId}/folders` first to avoid duplicates.
-
-### Influencer recreation
-
-- Must follow two-step flow: (1) generate still image via `POST /V2/images/generate` with `refImageAsBase64`, (2) show user for approval, (3) only then generate video using approved still as start frame.
-- Never skip the approval step — video is expensive, stills are cheap to iterate.
+- Generated media: 14 days.
+- Uploaded files: 3 days.
+- Download URLs from `/common/download-url`: 20 minutes.
 
 ### UGC prompting
 
-- **Imperfection block (camera):** Every UGC image/video prompt must include camera imperfections: motion blur, overexposure, grain, lens distortion, off-center framing, soft focus. Without this, output looks too polished.
-- **Skin realism block (mandatory):** Include 3-4 subtle skin cues inline with character description: "visible pores, slight unevenness in skin tone, minor undereye shadows, hint of shine from natural oils." Do NOT use: acne, pimples, breakouts, blemishes, redness. Goal: "real person, not retouched" — not "person with skin problems."
-- **Reference image order:** character hero first (strongest identity signal), then product, then style refs from `references/aesthetics/`.
-- **Style references:** Store in `references/aesthetics/{style-name}/` (e.g., `ugc-selfie/`, `cinematic/`). Load 3 images from the style folder as `referenceImages`.
+- **Imperfection block (camera):** Every UGC prompt must include camera imperfections.
+- **Skin realism block (mandatory):** Include 3-4 subtle skin cues inline with character description.
+- **Reference image order:** character hero first, then product, then style refs.
 
 ### Image QA
 
-- Agents must visually review still images after generation (hands, fingers, limbs, face, merged objects, artifacts).
-- If defective, regenerate with refined prompt — up to 2 retries (3 attempts total).
-- QA retries skip a second credit confirmation but still bill credits.
+- Agents must visually review still images after generation.
+- If defective, regenerate with refined prompt — up to 2 retries (3 total).
 
 ## Changelog
 
