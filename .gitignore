@@ -10,11 +10,11 @@ MASTER_CONTEXT.md
 .claude/worktrees/
 .claude/settings.local.json
 .cursor/skills/
-test-outputs/
 .DS_Store
 *.log
 outputs/
 output/
 references/youtube thumbnail/
+
 
 test-outputs/
