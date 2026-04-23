@@ -1,4 +1,4 @@
-# Creative brief playbook (KIE AI)
+# Creative brief playbook (KIE.ai)
 
 Use this **before** opening a model-specific file in `prompting/prompt-library/`.
 
@@ -8,20 +8,20 @@ Use this **before** opening a model-specific file in `prompting/prompt-library/`
 - **Job to be done:** What should the viewer feel or do after watching?
 - **Offer / proof:** Product name, one concrete benefit, optional social proof.
 - **Hook:** First 1–2 seconds—pattern interrupt, curiosity, or relatable moment.
-- **CTA:** Exact words if spoken or on-screen (e.g. "Shop the drop," "Book a demo").
+- **CTA:** Exact words if spoken or on-screen (e.g. “Shop the drop,” “Book a demo”).
 - **Constraints:** Length, aspect ratio, banned topics, brand words to avoid.
 
 ## 2. Turn intent into a single coherent prompt
 
 - Prefer **one paragraph** of clear direction over a bag of keywords.
 - Name the **subject**, **setting**, **camera / motion**, **lighting**, **style**, and **audio mood** when the API or workflow supports audio (per vendor guide).
-- If the user gave a vague adjective ("premium," "fun"), **translate** into visual specifics (materials, wardrobe, locations, pace).
+- If the user gave a vague adjective (“premium,” “fun”), **translate** into visual specifics (materials, wardrobe, locations, pace).
 
-## 3. Map the brief to KIE API
+## 3. Map the brief to KIE
 
-1. Pick the **model and endpoint** using `SKILL.md` decision tree and [reference.md](../reference.md).
-2. Open the matching **`prompting/prompt-library/*.md`** for **Veo 3.1**, **Sora 2**, **Kling 3.0**, **Runway**, or **Nano Banana** and align wording with that vendor's guide (linked in each file).
-3. Upload any reference images via KIE file upload and collect the returned `downloadUrl` values for use in the generation call.
+1. Pick the **API route** and **`model` string** using `SKILL.md` decision tree and [reference.md](../reference.md).
+2. Open the matching **`prompting/prompt-library/*.md`** for **Veo 3.1**, **Sora 2**, **Kling**, or **Nano Banana** and align wording with that vendor’s guide (linked in each file).
+3. If the workflow needs reference images, confirm the user has **hosted URLs** (KIE uses `imageUrls` / `image_input` — no presigned upload flow). See `SKILL.md` → *Reference images: hosted URLs, not file uploads*.
 
 ## 4. Merge with project memory
 
@@ -31,5 +31,6 @@ If `MASTER_CONTEXT.md` (repo root) lists brand voice, banned phrases, or winning
 
 - [ ] Required JSON fields present per [reference.md](../reference.md).
 - [ ] Prompt matches the **vendor guide style** for the chosen model.
-- [ ] No secrets in the request body (only IDs and creative text).
-- [ ] User confirmed aspect ratio and duration where applicable.
+- [ ] No secrets in the request body (only hosted URLs and creative text).
+- [ ] User confirmed aspect ratio and duration where enums apply.
+- [ ] Any reference image is a reachable URL (not a local file path or base64 unless tested).

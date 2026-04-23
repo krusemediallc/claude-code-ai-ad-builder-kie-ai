@@ -1,16 +1,6 @@
-# Master context (KIE.ai + agents)
+## Project snapshot — KIE.ai
 
-**Purpose:** One place for humans and AI agents to capture **decisions**, **brand voice**, **API quirks**, and **what we learned** while using this repo with KIE.ai.
-
-## How agents should use this file
-
-- **At the start of substantive work:** Read this file for project-specific context that is not in the skill.
-- **After meaningful changes:** Append a new **dated entry** under [Changelog](#changelog) (Decision / What changed / Why).
-- **If fields are empty:** Offer to populate them (credit costs from the user, image-hosting strategy, confirmed model strings from the KIE marketplace).
-
-## Project snapshot
-
-- **KIE API base:** `https://api.kie.ai` (see `.env.example`).
+- **API base:** `https://api.kie.ai` (see `.env.example`).
 - **Auth:** Bearer token (`KIE_API_KEY`).
 - **Skills:**
   - `.claude/skills/kie-external-api/` and `.cursor/skills/kie-external-api/` (sync from `skills/kie-external-api/` via `scripts/sync-skill.sh`).
@@ -52,24 +42,7 @@ Record exact KIE `model` strings that you've verified work in your account. Mark
 
 - _(dated entry per model once verified)_
 
-## Brand (optional)
-
-_Edit or replace with your real brand blocks (see `skills/kie-external-api/prompting/brand-voice-starter.md`)._
-
-- **Tone:**
-- **Audience:**
-- **Words to use / avoid:**
-
-## Reference images
-
-Drop reference images into the `references/` folder at the repo root:
-- `references/influencers/` — face/body photos to recreate as AI people
-- `references/products/` — product photos for showcase workflows
-- `references/aesthetics/` — mood boards, lighting references, style inspiration
-
-The agent checks this folder when composing prompts. **Because KIE uses hosted URLs, the agent also needs each file's public URL** — populate *Image hosting* above so this step is automated.
-
-## API learnings (universal)
+## API learnings — KIE.ai
 
 Confirmed behaviors of the KIE.ai API. Add new learnings here as you discover them.
 
@@ -95,8 +68,6 @@ Confirmed behaviors of the KIE.ai API. Add new learnings here as you discover th
 - Default aspect ratio is `16:9`. Use `9:16` for vertical content.
 - Default resolution `720p` — `1080p` and `4k` available, larger files.
 - `enableTranslation: true` auto-translates prompts to English (default on).
-- **ALWAYS** append `"No subtitles, no captions, no text overlays."` to every prompt — Veo sometimes burns subtitles in otherwise.
-- **Human motion cues mandatory** for person-on-screen videos: 3–4 cues per prompt (breaking eye contact, head tilt, weight shift, grip adjustment) — otherwise subjects look like frozen mannequins.
 
 ### Sora 2
 
@@ -129,28 +100,3 @@ Confirmed behaviors of the KIE.ai API. Add new learnings here as you discover th
 - Output videos/images are hosted on KIE temp URLs that may expire.
 - Refresh an expired link with `POST /api/v1/common/download-url`.
 - Best practice: download results to `outputs/{YYYY-MM-DD}-{slug}/` locally for durability.
-
-### Image QA
-
-- Visually review still images after generation (hands, fingers, limbs, face, merged objects, artifacts).
-- If defective, regenerate with refined prompt — up to **2 retries** (3 attempts total).
-- QA retries skip a second credit confirmation but still bill credits.
-
-### UGC prompting
-
-- **Imperfection block (camera):** UGC image/video prompts must include camera imperfections: motion blur, overexposure, grain, lens distortion, off-center framing, soft focus. Without this, output looks too polished.
-- **Skin realism block:** 3–4 subtle cues inline with character description: "visible pores, slight unevenness in skin tone, minor undereye shadows, hint of shine from natural oils." Don't use: acne, pimples, breakouts, blemishes, redness. Goal is "real person, not retouched" — not "person with skin problems."
-- **Reference image order in `input.image_input`:** character hero URL first (strongest identity signal), then product URL, then style refs from `references/aesthetics/`.
-
-### Influencer recreation
-
-- Two-step flow: (1) Nano Banana 2 still image with reference URL in `input.image_input`, (2) user approves, (3) approved still URL → Veo 3.1 `imageUrls` (with `REFERENCE_2_VIDEO`) or Sora 2 `sora-2-image-to-video`.
-- Never skip approval — video is expensive, stills are cheap to iterate.
-
-## Changelog
-
-### YYYY-MM-DD -- Template entry
-
-- **Decision:**
-- **Change:**
-- **Why:**

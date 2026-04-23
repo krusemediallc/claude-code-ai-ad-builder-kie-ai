@@ -25,4 +25,4 @@ Replace the placeholders with your real brand rules. Agents should read `MASTER_
 
 _Add dated bullets as you learn what KIE returns for your account._
 
-- YYYY-MM-DD — {{SHORT_NOTE}} — prompt: "…"
+- YYYY-MM-DD — {{SHORT_NOTE}} — prompt: “…”

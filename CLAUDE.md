@@ -1,24 +1,14 @@
-# Claude Code — project instructions
+@shared/CLAUDE.md
 
-## First-time setup
+# KIE.ai-specific session rules
 
-If `.env` does not exist, tell the user to run `./scripts/setup.sh` or walk them through:
-1. Copy `.env.example` to `.env`.
-2. Paste their KIE API key into `.env` (line: `KIE_API_KEY=`). Get a key from https://kie.ai/api-key.
-3. Run `./scripts/check-kie-env.sh` to verify.
-
-If `MASTER_CONTEXT.md` does not exist, copy `MASTER_CONTEXT.template.md` to `MASTER_CONTEXT.md`.
-
-## Every session
-
-1. Read **[MASTER_CONTEXT.md](MASTER_CONTEXT.md)** for brand voice, credit costs, and accumulated learnings.
-2. Use the KIE AI skill **`kie-ai-api`** (`.claude/skills/kie-ai-api/SKILL.md`) for API calls, prompts, and polling.
-3. If `MASTER_CONTEXT.md` has empty fields (credit costs), offer to populate them — ask the user and **write the values back into MASTER_CONTEXT.md** so future sessions have them.
-
-## After significant changes
-
-Append a short dated note to **MASTER_CONTEXT.md** under Changelog (Decision / What changed / Why).
-
-## Skill edits
-
-Edit the canonical source at `skills/kie-ai-api/`. Run `./scripts/sync-skill.sh` to copy changes to `.claude/skills/` and `.cursor/skills/`.
+- **API:** KIE.ai (`https://api.kie.ai`).
+- **Auth:** Bearer token via `KIE_API_KEY`. Setup check: `./scripts/check-kie-env.sh`.
+- **Skills:**
+  - `.claude/skills/kie-external-api/SKILL.md` — main API reference (Veo / Sora / Nano Banana / jobs vs first-party endpoints).
+  - `.claude/skills/generate-youtube-thumbnail/SKILL.md` — YouTube thumbnail batch workflow on Nano Banana 2.
+- **Reference images:** KIE has no presigned-upload flow. Reference images must be at publicly reachable URLs. If `MASTER_CONTEXT.md`'s *Image hosting* section is empty, stop and ask the user for their hosting strategy before firing any generation that needs references.
+- **Cost disclosure:** Always present credit totals as **estimates**. Direct the user to [kie.ai/logs](https://kie.ai/logs) for exact charges.
+- **Logging:** Log every generation call to `logs/kie-api.jsonl` (schema in `logs/README.md`).
+- **Rate limits:** 20 new requests per 10s, 100+ concurrent tasks. Back off with jitter on 429.
+- **First-time setup:** If `.env` is missing, run `./scripts/setup.sh`. If `MASTER_CONTEXT.md` is missing, copy `MASTER_CONTEXT.template.md` to `MASTER_CONTEXT.md`.
